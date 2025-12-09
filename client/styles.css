@@ -1,0 +1,206 @@
+html, body { height: 100%; margin: 0; padding: 0; }
+body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; overflow: hidden; }
+
+#map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Make map tiles monochrome-ish (without affecting overlays) */
+.leaflet-tile-pane {
+  filter: grayscale(1) contrast(1.15);
+}
+
+.topBar{
+  position:absolute; top:10px; left:10px; right:10px;
+  display:flex; justify-content:space-between; gap:10px;
+  pointer-events:none;
+  z-index: 1000;
+}
+.topBtn{
+  pointer-events:auto;
+  padding:10px 14px; border-radius:14px;
+  border:1px solid rgba(0,0,0,.18);
+  background:rgba(255,255,255,.88);
+  font-weight:800;
+}
+
+.bottomBar{
+  position:absolute; bottom:14px; left:14px; right:14px;
+  display:flex; justify-content:space-between; gap:12px;
+  pointer-events:none;
+  z-index: 1000;
+}
+.bottomBtn{
+  pointer-events:auto;
+  min-width:42%;
+  padding:14px 16px; border-radius:18px;
+  border:1px solid rgba(0,0,0,.18);
+  background:rgba(255,255,255,.92);
+  font-weight:900;
+  box-shadow: 0 10px 26px rgba(0,0,0,.18);
+}
+.bottomBtn:disabled{
+  opacity:.45;
+  box-shadow:none;
+}
+
+.toast{
+  position:absolute;
+  left:50%; transform:translateX(-50%);
+  bottom:90px;
+  background:rgba(0,0,0,.78);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:650;
+  max-width:82vw;
+  text-align:center;
+  z-index: 1200;
+}
+
+.hidden{ display:none !important; }
+
+.modalBackdrop{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+  pointer-events:auto;
+  z-index: 2000;
+}
+.modal{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(92vw, 360px);
+  background:rgba(255,255,255,.96);
+  border-radius:18px;
+  border:1px solid rgba(0,0,0,.14);
+  box-shadow: 0 18px 54px rgba(0,0,0,.35);
+  padding:14px;
+  pointer-events:auto;
+  z-index: 2100;
+}
+.modal.wide{ width:min(92vw, 420px); }
+.modalClose{
+  position:absolute; top:10px; right:10px;
+  border:none; background:transparent;
+  font-size:18px; font-weight:950;
+}
+.modalTitle{ font-size:16px; font-weight:950; margin-bottom:10px; }
+.modalText{ font-size:13px; opacity:.78; margin: 4px 0 10px; line-height:1.3; }
+.modalRow{ display:flex; gap:10px; align-items:center; }
+select{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  font-weight:800;
+}
+.modalAction{
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.18);
+  background:rgba(167,243,208,.70);
+  font-weight:950;
+  white-space:nowrap;
+}
+.modalAction.full{ width:100%; margin-top:12px; }
+
+.gridHead, .gridBodyRow{
+  display:grid;
+  grid-template-columns: 1.4fr 1fr .7fr;
+  gap:8px;
+  align-items:center;
+}
+.gridHead{
+  font-size:12px; font-weight:950;
+  opacity:.75;
+  border-bottom:1px solid rgba(0,0,0,.10);
+  padding-bottom:8px;
+  margin-bottom:8px;
+}
+.gridBody{ max-height:46vh; overflow:auto; }
+.gridBodyRow{
+  padding:8px 0;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  font-size:13px;
+}
+
+.hintsList{ display:flex; flex-direction:column; gap:8px; max-height:54vh; overflow:auto; }
+.hintItem{
+  padding:10px 10px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.10);
+  background:rgba(0,0,0,.03);
+  font-size:13px;
+}
+
+.guessList{ max-height:48vh; overflow:auto; display:flex; flex-direction:column; gap:8px; }
+.guessRow{
+  display:grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap:10px;
+  align-items:center;
+}
+.guessRow label{ font-size:13px; font-weight:950; opacity:.8; }
+
+/* --- Center marker (timer) locked to map coordinates --- */
+.centerMarkerIcon{
+  background: transparent !important;
+  border: none !important;
+}
+
+.centerCard{
+  width:120px; height:120px;
+  box-sizing: border-box;           /* ✅ IMPORTANT: fixes true size */
+  border-radius:999px;
+  background:rgba(255,255,255,0.3);
+  border:1px solid rgba(0,0,0,0.2);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:6px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+  text-align:center;
+  padding:14px;
+}
+
+.centerTimerNum{
+  font-size:34px;
+  font-weight:950;
+  letter-spacing:.2px;
+  line-height:1;
+}
+
+.centerTimerUnit{
+  font-size:14px;
+  font-weight:900;
+  opacity:.75;
+  line-height:1;
+}
+
+.centerBtn{
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.18);
+  font-weight:950;
+  background:rgba(125,211,252,.45);
+}
+.centerBtn:active{ transform: scale(0.99); }
+
+/* --- Sector number overlays --- */
+.sectorLabelIcon{
+  background: transparent !important;
+  border: none !important;
+}
+.sectorLabel{
+  font-weight: 950;
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.75;
+  mix-blend-mode: multiply;
+  user-select: none;
+  pointer-events: none;
+}

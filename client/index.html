@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Savanna World (Prototype)</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="topBar">
+    <button id="guessBtn" class="topBtn">Guess</button>
+    <button id="infoBtn" class="topBtn">Info</button>
+    <button id="logBtn" class="topBtn">Log</button>
+  </div>
+
+  <div class="bottomBar">
+    <button id="surveyBtn" class="bottomBtn">Survey</button>
+    <button id="addRemoveBtn" class="bottomBtn">Add Sector</button>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="modalBackdrop" class="modalBackdrop hidden"></div>
+
+  <div id="surveyModal" class="modal hidden" role="dialog" aria-modal="true">
+    <button class="modalClose" id="closeSurvey">✕</button>
+    <div class="modalTitle">Survey</div>
+    <div id="surveyRangeText" class="modalText">Surveying sectors — for:</div>
+    <div class="modalRow">
+      <select id="surveyAnimal"></select>
+      <button id="confirmSurvey" class="modalAction">Survey</button>
+    </div>
+  </div>
+
+  <div id="logModal" class="modal hidden" role="dialog" aria-modal="true">
+    <button class="modalClose" id="closeLog">✕</button>
+    <div class="modalTitle">Survey Log</div>
+    <div class="gridHead">
+      <div>Sectors</div><div>Animal</div><div>Count</div>
+    </div>
+    <div id="logGrid" class="gridBody"></div>
+  </div>
+
+  <div id="infoModal" class="modal hidden" role="dialog" aria-modal="true">
+    <button class="modalClose" id="closeInfo">✕</button>
+    <div class="modalTitle">Starting Hints</div>
+    <div id="hintsList" class="hintsList"></div>
+  </div>
+
+  <div id="guessModal" class="modal hidden wide" role="dialog" aria-modal="true">
+    <button class="modalClose" id="closeGuess">✕</button>
+    <div class="modalTitle">Enter Guess</div>
+    <div id="guessesRemaining" class="modalText">Guesses remaining: —</div>
+    <div id="guessList" class="guessList"></div>
+    <button id="submitGuess" class="modalAction full">Enter Guess</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script src="./app.js"></script>
+</body>
+</html>
