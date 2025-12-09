@@ -1,5 +1,25 @@
+:root{
+  --glass: rgba(255,255,255,.86);
+  --glass-strong: rgba(255,255,255,.94);
+  --border: rgba(0,0,0,.14);
+  --shadow: 0 14px 44px rgba(0,0,0,.22);
+  --shadow-soft: 0 10px 26px rgba(0,0,0,.16);
+  --ink: rgba(0,0,0,.92);
+  --muted: rgba(0,0,0,.65);
+
+  --primary: rgba(99,102,241,.26);   /* indigo-ish, not gross yellow */
+  --primary-strong: rgba(99,102,241,.34);
+  --danger: rgba(248,113,113,.32);
+  --success: rgba(34,197,94,.28);
+}
+
 html, body { height: 100%; margin: 0; padding: 0; }
-body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; overflow: hidden; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  overflow: hidden;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
 
 #map {
   position: absolute;
@@ -8,48 +28,79 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, H
 }
 
 /* Make map tiles monochrome-ish (without affecting overlays) */
-.leaflet-tile-pane {
-  filter: grayscale(1) contrast(1.15);
+.leaflet-tile-pane { filter: grayscale(1) contrast(1.15); }
+
+/* ---------- Buttons (shared) ---------- */
+.btn{
+  appearance: none;
+  border: 1px solid rgba(0,0,0,.16);
+  background: var(--glass);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 900;
+  letter-spacing: .1px;
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+  transition: transform .08s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
 }
 
+.btn:active{ transform: translateY(1px) scale(0.99); box-shadow: 0 8px 18px rgba(0,0,0,.16); }
+.btn:disabled{
+  opacity: .45;
+  box-shadow: none;
+  transform: none;
+}
+
+.btnPrimary{
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+}
+.btnDanger{
+  background: linear-gradient(180deg, rgba(248,113,113,.38), rgba(248,113,113,.26));
+}
+
+.btnSuccess{
+  background: linear-gradient(180deg, rgba(34,197,94,.38), rgba(34,197,94,.26));
+}
+.btnGhost{
+  background: rgba(255,255,255,.72);
+  box-shadow: none;
+}
+
+/* ---------- Top / Bottom bars ---------- */
 .topBar{
   position:absolute; top:10px; left:10px; right:10px;
-  display:flex; justify-content:space-between; gap:10px;
+  display:flex; gap:8px;
   pointer-events:none;
   z-index: 1000;
 }
 .topBtn{
   pointer-events:auto;
-  padding:10px 14px; border-radius:14px;
-  border:1px solid rgba(0,0,0,.18);
-  background:rgba(255,255,255,.88);
-  font-weight:800;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 10px;
+  border-radius: 18px;
+  text-align:center;
 }
 
 .bottomBar{
   position:absolute; bottom:14px; left:14px; right:14px;
-  display:flex; justify-content:space-between; gap:12px;
+  display:flex; gap:12px;
   pointer-events:none;
   z-index: 1000;
 }
 .bottomBtn{
   pointer-events:auto;
-  min-width:42%;
-  padding:14px 16px; border-radius:18px;
-  border:1px solid rgba(0,0,0,.18);
-  background:rgba(255,255,255,.92);
-  font-weight:900;
-  box-shadow: 0 10px 26px rgba(0,0,0,.18);
-}
-.bottomBtn:disabled{
-  opacity:.45;
-  box-shadow:none;
+  flex:1;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 20px;
 }
 
+/* ---------- Toast ---------- */
 .toast{
   position:absolute;
   left:50%; transform:translateX(-50%);
-  bottom:90px;
+  bottom:96px;
   background:rgba(0,0,0,.78);
   color:#fff;
   padding:10px 14px;
@@ -62,6 +113,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, H
 
 .hidden{ display:none !important; }
 
+/* ---------- Modals ---------- */
 .modalBackdrop{
   position:absolute; inset:0;
   background:rgba(0,0,0,.45);
@@ -73,24 +125,27 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, H
   position:absolute;
   left:50%; top:50%;
   transform:translate(-50%,-50%);
-  width:min(92vw, 360px);
-  background:rgba(255,255,255,.96);
-  border-radius:18px;
-  border:1px solid rgba(0,0,0,.14);
+  width: min(calc(100vw - 24px), 360px); /* ≈ 95% with safe margins */
+  background:var(--glass-strong);
+  border-radius:20px;
+  border:1px solid var(--border);
   box-shadow: 0 18px 54px rgba(0,0,0,.35);
   padding:14px;
   pointer-events:auto;
   z-index: 2100;
 }
-.modal.wide{ width:min(92vw, 420px); }
+.modal.wide{ width: min(calc(100vw - 24px), 420px); }
+
 .modalClose{
   position:absolute; top:10px; right:10px;
   border:none; background:transparent;
   font-size:18px; font-weight:950;
+  color: rgba(0,0,0,.55);
 }
 .modalTitle{ font-size:16px; font-weight:950; margin-bottom:10px; }
-.modalText{ font-size:13px; opacity:.78; margin: 4px 0 10px; line-height:1.3; }
+.modalText{ font-size:13px; color: var(--muted); margin: 4px 0 10px; line-height:1.3; }
 .modalRow{ display:flex; gap:10px; align-items:center; }
+
 select{
   width:100%;
   padding:12px 12px;
@@ -99,14 +154,8 @@ select{
   background:#fff;
   font-weight:800;
 }
-.modalAction{
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid rgba(0,0,0,.18);
-  background:rgba(167,243,208,.70);
-  font-weight:950;
-  white-space:nowrap;
-}
+
+.modalAction{ padding:12px 14px; border-radius:14px; white-space:nowrap; }
 .modalAction.full{ width:100%; margin-top:12px; }
 
 .gridHead, .gridBodyRow{
@@ -117,7 +166,7 @@ select{
 }
 .gridHead{
   font-size:12px; font-weight:950;
-  opacity:.75;
+  color: rgba(0,0,0,.68);
   border-bottom:1px solid rgba(0,0,0,.10);
   padding-bottom:8px;
   margin-bottom:8px;
@@ -145,62 +194,82 @@ select{
   gap:10px;
   align-items:center;
 }
-.guessRow label{ font-size:13px; font-weight:950; opacity:.8; }
+.guessRow label{ font-size:13px; font-weight:950; color: rgba(0,0,0,.72); }
 
 /* --- Center marker (timer) locked to map coordinates --- */
-.centerMarkerIcon{
-  background: transparent !important;
-  border: none !important;
-}
-
+.centerMarkerIcon{ background: transparent !important; border: none !important; }
 .centerCard{
-  width:120px; height:120px;
-  box-sizing: border-box;           /* ✅ IMPORTANT: fixes true size */
+  width:160px; height:160px;
+  box-sizing: border-box;
   border-radius:999px;
-  background:rgba(255,255,255,0.3);
-  border:1px solid rgba(0,0,0,0.2);
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(0,0,0,.14);
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   gap:6px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow);
   text-align:center;
   padding:14px;
 }
+.centerTimerNum{ font-size:34px; font-weight:950; line-height:1; }
+.centerTimerUnit{ font-size:14px; font-weight:900; opacity:.75; line-height:1; }
 
-.centerTimerNum{
-  font-size:34px;
-  font-weight:950;
-  letter-spacing:.2px;
-  line-height:1;
-}
-
-.centerTimerUnit{
-  font-size:14px;
-  font-weight:900;
-  opacity:.75;
-  line-height:1;
-}
+.centerStatusText{ font-size:13px; font-weight:900; color: rgba(0,0,0,.70); }
 
 .centerBtn{
-  padding:12px 14px;
+  margin-top:8px;
+  padding:10px 12px;
   border-radius:14px;
   border:1px solid rgba(0,0,0,.18);
   font-weight:950;
-  background:rgba(125,211,252,.45);
+  background: rgba(248,113,113,.28);
 }
-.centerBtn:active{ transform: scale(0.99); }
+.centerBtn:active{ transform: translateY(1px) scale(0.99); }
 
 /* --- Sector number overlays --- */
-.sectorLabelIcon{
-  background: transparent !important;
-  border: none !important;
-}
+.sectorLabelIcon{ background: transparent !important; border: none !important; }
 .sectorLabel{
   font-weight: 950;
   font-size: 22px;
   line-height: 1;
-  opacity: 0.75;
+  opacity: 0.62;
   mix-blend-mode: multiply;
   user-select: none;
   pointer-events: none;
+}
+.sectorLabel.emoji{
+  font-size: 26px;
+  opacity: 0.95;
+  mix-blend-mode: normal;
+}
+
+/* ---------- Title Screen ---------- */
+.titleScreen{
+  position:absolute; inset:0;
+  z-index: 3000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  background:
+    radial-gradient(1200px 800px at 20% 15%, rgba(32,163,158,.3), transparent 100%),
+    radial-gradient(900px 700px at 80% 80%, rgba(255,186,73,.25), transparent 100%),
+    rgba(0,0,0,.52);
+  backdrop-filter: blur(4px);
+}
+.titleCard{
+  width: min(520px, calc(100vw - 36px));
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 26px;
+  box-shadow: 0 22px 70px rgba(0,0,0,.42);
+  padding: 24px 18px;
+  text-align:center;
+}
+.titleName{
+  font-size: 26px;
+  font-weight: 1000;
+  letter-spacing: .2px;
+  line-height: 1.15;
+  margin-bottom: 16px;
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Savanna World (Prototype)</title>
+  <title>The Search for Room Key X</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -13,15 +13,23 @@
 <body>
   <div id="map"></div>
 
+  <!-- Title screen overlay -->
+  <div id="titleScreen" class="titleScreen hidden" role="dialog" aria-modal="true">
+    <div class="titleCard">
+      <div class="titleName">The Search for Room Key X</div>
+      <button id="titleNewGameBtn" class="btn btnPrimary">New Game</button>
+    </div>
+  </div>
+
   <div class="topBar">
-    <button id="guessBtn" class="topBtn">Guess</button>
-    <button id="infoBtn" class="topBtn">Info</button>
-    <button id="logBtn" class="topBtn">Log</button>
+    <button id="guessBtn" class="btn topBtn">Guess</button>
+    <button id="infoBtn" class="btn topBtn">Info</button>
+    <button id="logBtn" class="btn topBtn">Log</button>
   </div>
 
   <div class="bottomBar">
-    <button id="surveyBtn" class="bottomBtn">Survey</button>
-    <button id="addRemoveBtn" class="bottomBtn">Add Sector</button>
+    <button id="surveyBtn" class="btn bottomBtn">Survey</button>
+    <button id="addRemoveBtn" class="btn bottomBtn">Add Sector</button>
   </div>
 
   <div id="toast" class="toast hidden"></div>
@@ -34,7 +42,7 @@
     <div id="surveyRangeText" class="modalText">Surveying sectors — for:</div>
     <div class="modalRow">
       <select id="surveyAnimal"></select>
-      <button id="confirmSurvey" class="modalAction">Survey</button>
+      <button id="confirmSurvey" class="btn btnPrimary modalAction">Survey</button>
     </div>
   </div>
 
@@ -58,7 +66,7 @@
     <div class="modalTitle">Enter Guess</div>
     <div id="guessesRemaining" class="modalText">Guesses remaining: —</div>
     <div id="guessList" class="guessList"></div>
-    <button id="submitGuess" class="modalAction full">Enter Guess</button>
+    <button id="submitGuess" class="btn btnPrimary modalAction full">Enter Guess</button>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

@@ -16,6 +16,9 @@ const DISPLAY = {
   AARDWOLF: { label: "Aardwolf", icon: "🐺" },
 };
 
+const CENTER_CARD_PX = 160;
+
+
 const SURVEYABLE = [ANIMALS.OAK, ANIMALS.LEOPARD, ANIMALS.ZEBRA, ANIMALS.VULTURE];
 
 function getCenterScale(){
@@ -41,6 +44,12 @@ const el = {
   guessBtn: document.getElementById("guessBtn"),
   infoBtn: document.getElementById("infoBtn"),
   logBtn: document.getElementById("logBtn"),
+
+  // Title screen
+  titleScreen: document.getElementById("titleScreen"),
+  titleNewGameBtn: document.getElementById("titleNewGameBtn"),
+  topBar: document.querySelector(".topBar"),
+  bottomBar: document.querySelector(".bottomBar"),
 
   toast: document.getElementById("toast"),
   backdrop: document.getElementById("modalBackdrop"),
@@ -193,6 +202,29 @@ function showToast(msg) {
   showToast._t = setTimeout(() => el.toast.classList.add("hidden"), 1800);
 }
 
+function setTitleScreenVisible(visible) {
+  if (!el.titleScreen) return;
+  if (visible) {
+    el.titleScreen.classList.remove("hidden");
+    if (el.topBar) el.topBar.classList.add("hidden");
+    if (el.bottomBar) el.bottomBar.classList.add("hidden");
+    closeModal();
+  } else {
+    el.titleScreen.classList.add("hidden");
+    if (el.topBar) el.topBar.classList.remove("hidden");
+    if (el.bottomBar) el.bottomBar.classList.remove("hidden");
+  }
+}
+
+function setBtnVariant(button, variant) {
+  if (!button) return;
+  button.classList.remove("btnPrimary", "btnDanger", "btnGhost", "btnSuccess");
+  if (variant === "primary") button.classList.add("btnPrimary");
+  else if (variant === "danger") button.classList.add("btnDanger");
+  else if (variant === "ghost") button.classList.add("btnGhost");
+  else if (variant === "success") button.classList.add("btnSuccess");
+}
+
 function openModal(which) {
   state.ui.modal = which;
   el.backdrop.classList.remove("hidden");
@@ -206,6 +238,13 @@ function closeModal() {
   state.ui.modal = null;
   el.backdrop.classList.add("hidden");
   for (const m of [el.surveyModal, el.logModal, el.infoModal, el.guessModal]) m.classList.add("hidden");
+}
+
+if (el.titleNewGameBtn) {
+  el.titleNewGameBtn.addEventListener("click", async () => {
+    if (!state.myLoc) { showToast("Need location permission to start."); return; }
+    await apiCommand({ type: "NEW_GAME", center_lat: state.myLoc.lat, center_lon: state.myLoc.lon });
+  });
 }
 
 el.backdrop.addEventListener("click", closeModal);
@@ -351,6 +390,11 @@ function applyTimerUpdate(payload) {
 // --- Snapshot / UI rendering ---
 function applySnapshot(snap) {
   state.snapshot = snap;
+
+  // Title screen is shown when the game is waiting (shut down).
+  const status = (snap && snap.status) ? snap.status : "waiting";
+  setTitleScreenVisible(status === "waiting");
+
   resetOverlaysIfCenterChanged();
   ensureOverlays();
   renderOverlays();
@@ -398,47 +442,59 @@ function centerMarkerHtml() {
   const status = snap.status || "waiting";
   const minutes = snap.minutes_remaining;
 
-  // For waiting/no center we still show New Game.
-  if (status === "waiting" || snap.center_lat == null || snap.center_lon == null) {
+  if (status === "running") {
     return `
-      <div class="centerCard">
-        <div class="centerHintText">Tap to start a new game.</div>
-        <button class="centerBtn" data-action="new-game">New Game</button>
-      </div>
-    `;
-  }
-
-  if (status === "won" || status === "lost") {
-    return `
-      <div class="centerCard">
-        <div class="centerHintText">${status === "won" ? "You win! 🎉" : "You lose."}</div>
-        <button class="centerBtn" data-action="new-game">New Game</button>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="centerScaleWrap" style="transform:scale(${getCenterScale()})">
       <div class="centerCard">
         <div class="centerTimerNum">${minutes == null ? "—" : minutes}</div>
         <div class="centerTimerUnit">min</div>
       </div>
-    </div>
-  `;
+    `;
+  }
+
+  if (status === "won") {
+    return `
+      <div class="centerCard">
+        <div class="centerStatusText">You win! 🎉</div>
+        <button class="centerBtn" data-action="shutdown">Shut Down</button>
+      </div>
+    `;
+  }
+
+  if (status === "lost") {
+    return `
+      <div class="centerCard">
+        <div class="centerStatusText">You lose.</div>
+        <button class="centerBtn" data-action="shutdown">Shut Down</button>
+      </div>
+    `;
+  }
+
+  return ``;
 }
+
 
 function ensureCenterMarker() {
   if (!state.map) return;
-  const center = getCenterForRendering();
-  if (!center) return;
 
-  const latlng = [center.lat, center.lon];
+  const snap = state.snapshot || {};
+  const status = snap.status || "waiting";
+
+  // No center marker on title screen / waiting state.
+  if (status === "waiting" || snap.center_lat == null || snap.center_lon == null) {
+    if (state.centerMarker) {
+      try { state.centerMarker.remove(); } catch {}
+      state.centerMarker = null;
+    }
+    return;
+  }
+
+  const latlng = [snap.center_lat, snap.center_lon];
 
   const icon = L.divIcon({
     className: "centerMarkerIcon",
     html: centerMarkerHtml(),
-    iconSize: [120, 120],
-    iconAnchor: [60, 60],
+    iconSize: [CENTER_CARD_PX, CENTER_CARD_PX],
+    iconAnchor: [CENTER_CARD_PX / 2, CENTER_CARD_PX / 2],
   });
 
   if (!state.centerMarker) {
@@ -447,10 +503,8 @@ function ensureCenterMarker() {
   } else {
     state.centerMarker.setLatLng(latlng);
     state.centerMarker.setIcon(icon);
-    // icon replacement nukes listeners -> re-wire
     wireCenterMarker();
   }
-
 }
 
 function wireCenterMarker() {
@@ -462,13 +516,12 @@ function wireCenterMarker() {
   L.DomEvent.disableClickPropagation(root);
   L.DomEvent.disableScrollPropagation(root);
 
-  const btn = root.querySelector('[data-action="new-game"]');
+  const btn = root.querySelector('[data-action="shutdown"]');
   if (btn) {
     btn.onclick = async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!state.myLoc) { showToast("Need location permission to start."); return; }
-      await apiCommand({ type: "NEW_GAME", center_lat: state.myLoc.lat, center_lon: state.myLoc.lon });
+      await apiCommand({ type: "SHUTDOWN" });
     };
   }
 }
@@ -494,6 +547,15 @@ function renderButtons() {
   const hasCenter = snap && snap.center_lat != null && snap.center_lon != null;
   const running = status === "running";
 
+  // Disable/grey out everything in loss state (shutdown stays available in center circle).
+  const lost = status === "lost";
+  if (lost) closeModal();
+
+  // Top buttons: disable only on loss (requested).
+  el.guessBtn.disabled = lost || !running;
+  el.infoBtn.disabled = lost;
+  el.logBtn.disabled = lost;
+
   // Survey button enable
   let surveyEnabled = false;
   if (running && snap) {
@@ -505,12 +567,13 @@ function renderButtons() {
     }
   }
   el.surveyBtn.disabled = !surveyEnabled;
+  setBtnVariant(el.surveyBtn, surveyEnabled ? "primary" : "ghost");
 
   // Add/Remove button state
   if (!running || !hasCenter || !loc) {
     el.addRemoveBtn.disabled = true;
     el.addRemoveBtn.textContent = "Add Sector";
-    el.addRemoveBtn.style.background = "rgba(255,255,255,.92)";
+    setBtnVariant(el.addRemoveBtn, "ghost");
     return;
   }
 
@@ -521,7 +584,7 @@ function renderButtons() {
   if (sec == null) {
     el.addRemoveBtn.disabled = true;
     el.addRemoveBtn.textContent = "Add Sector";
-    el.addRemoveBtn.style.background = "rgba(255,255,255,.92)";
+    setBtnVariant(el.addRemoveBtn, "ghost");
     return;
   }
 
@@ -529,7 +592,7 @@ function renderButtons() {
   if (!active) {
     el.addRemoveBtn.disabled = true;
     el.addRemoveBtn.textContent = "Out of play";
-    el.addRemoveBtn.style.background = "rgba(255,255,255,.92)";
+    setBtnVariant(el.addRemoveBtn, "ghost");
     return;
   }
 
@@ -537,10 +600,10 @@ function renderButtons() {
   el.addRemoveBtn.disabled = false;
   if (selected) {
     el.addRemoveBtn.textContent = "Remove Sector";
-    el.addRemoveBtn.style.background = "rgba(248,113,113,.55)";
+    setBtnVariant(el.addRemoveBtn, "danger");
   } else {
     el.addRemoveBtn.textContent = "Add Sector";
-    el.addRemoveBtn.style.background = "rgba(34,197,94,.45)";
+    setBtnVariant(el.addRemoveBtn, "success");
   }
 }
 
@@ -585,6 +648,9 @@ function initMap() {
   }).addTo(state.map);
 
   state.map.setView([37.7749, -122.4194], 13);
+
+  state.map.createPane("playerPane");
+  state.map.getPane("playerPane").style.zIndex = 650; // higher than overlays
 }
 
 function ensureOverlays() {
@@ -685,11 +751,25 @@ function renderOverlays() {
       fillOpacity: 1,
     });
 
-    // Update label color to match sector state (multiply translucency via CSS)
+    // Update label content + color
     const marker = state.sectorLabels[i];
     const root = marker && marker.getElement();
     const label = root && root.querySelector(".sectorLabel");
-    if (label) label.style.color = labelColorFor(i);
+
+    const showSolutionEmojis = (snap.status === "lost" && snap.solution_revealed && Array.isArray(snap.solution));
+
+    if (label) {
+      if (showSolutionEmojis) {
+        const animal = snap.solution[i];
+        label.textContent = (DISPLAY[animal] && DISPLAY[animal].icon) ? DISPLAY[animal].icon : "❓";
+        label.classList.add("emoji");
+        label.style.color = "";
+      } else {
+        label.textContent = String(i + 1);
+        label.classList.remove("emoji");
+        label.style.color = labelColorFor(i);
+      }
+    }
 
     // No tooltips; no hover; but if revealed, we can still show via toast/log UI (kept simple).
     // If you want revealed solution to show somewhere else, we can add a dedicated modal later.
@@ -706,7 +786,8 @@ function renderOverlays() {
         radius: 7, weight: 2,
         color: "rgba(0,0,0,.55)",
         fillColor: "rgba(255,255,255,.9)",
-        fillOpacity: 1
+        fillOpacity: 1,
+        pane: "playerPane",
       }).addTo(state.map);
     } else {
       state.locationMarker.setLatLng(p);

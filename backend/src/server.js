@@ -299,6 +299,44 @@ async function handleCommand(cmd) {
     return { ok: true, message: "tick", broadcast: "timer" };
   }
 
+  // ---- SHUTDOWN: return everyone to the title screen (clear center + timer + selections) ----
+  if (type === "SHUTDOWN") {
+    await withTx(async (client) => {
+      // Optional dedup
+      if (command_id) {
+        const ok = await tryDedup(client, command_id);
+        if (!ok) return;
+      }
+
+      const st = await loadState(client);
+
+      const patch = {
+        status: "waiting",
+        center_lat: null,
+        center_lon: null,
+        deadline_utc: null,
+        active_start_index: 0,
+        selected_sectors: [],
+        guesses_remaining: 3,
+        solution: null,
+        solution_revealed: false,
+        hints: JSON.stringify([]),
+        version: Number(st.version) + 1,
+      };
+
+      await clearLog(client);
+      await saveState(client, patch);
+
+      // Update timer cache without touching DB again
+      timerCache.loaded = true;
+      timerCache.status = "waiting";
+      timerCache.deadlineMs = null;
+      timerCache.minutesRemaining = null;
+    });
+
+    return { ok: true, message: "shutdown", broadcast: "state" };
+  }
+
   // ---- All other commands: serialize + lock row, because they mutate game state ----
   return withTx(async (client) => {
     const { rows } = await client.query("SELECT * FROM game_state WHERE id=1 FOR UPDATE");
