@@ -1,6 +1,6 @@
 const N_SECTORS = 13;
 const MILES_TO_M = 1609.344;
-const INNER_RADIUS_M = 0.05 * MILES_TO_M;
+const INNER_RADIUS_M = 0.25 * MILES_TO_M;
 const OUTER_RADIUS_M = 0.5 * MILES_TO_M;
 const SLICE_DEG = 360 / N_SECTORS;
 

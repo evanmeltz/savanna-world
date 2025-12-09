@@ -16,7 +16,7 @@ const DISPLAY = {
   AARDWOLF: { label: "Aardwolf", icon: "🐺" },
 };
 
-const CENTER_CARD_PX = 160;
+const CENTER_CARD_PX = 140;
 
 
 const SURVEYABLE = [ANIMALS.OAK, ANIMALS.LEOPARD, ANIMALS.ZEBRA, ANIMALS.VULTURE];
@@ -83,6 +83,7 @@ const state = {
   myLoc: null,
   mySector: null,
   map: null,
+  userHasPanned: false,
   sectorPolys: [],
   sectorLabels: [],
   locationMarker: null,
@@ -635,8 +636,8 @@ function renderLog() {
 function initMap() {
   state.map = L.map("map", {
     zoomControl: false,
-    minZoom: 14,   // ✅ max zoom-out level (bigger number = less zoomed out)
-    maxZoom: 16,   // optional cap on zoom-in
+    minZoom: 13,   // ✅ max zoom-out level (bigger number = less zoomed out)
+    maxZoom: 16.5,   // optional cap on zoom-in
     zoomSnap: 0,   // quarter-zoom steps
     keyboard: !TESTMODE.enabled,   // ✅ add this
   });
@@ -648,6 +649,9 @@ function initMap() {
   }).addTo(state.map);
 
   state.map.setView([37.7749, -122.4194], 13);
+
+  state.map.on("dragstart", () => { state.userHasPanned = true; });
+  state.map.on("zoomstart", () => { state.userHasPanned = true; });
 
   state.map.createPane("playerPane");
   state.map.getPane("playerPane").style.zIndex = 650; // higher than overlays
@@ -918,7 +922,9 @@ function startGeolocation() {
       setMyLoc(latitude, longitude, accuracy || null);
 
       // keep map view reasonable (your existing behavior)
-      if (state.map) state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15));
+      if (state.map && !state.userHasPanned) {
+        state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15));
+      }
     },
     () => showToast("Location permission needed."),
     { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
