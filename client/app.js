@@ -636,7 +636,7 @@ function renderLog() {
 function initMap() {
   state.map = L.map("map", {
     zoomControl: false,
-    minZoom: 13,   // ✅ max zoom-out level (bigger number = less zoomed out)
+    minZoom: 13.7,   // ✅ max zoom-out level (bigger number = less zoomed out)
     maxZoom: 16.5,   // optional cap on zoom-in
     zoomSnap: 0,   // quarter-zoom steps
     keyboard: !TESTMODE.enabled,   // ✅ add this
