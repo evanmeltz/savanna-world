@@ -87,6 +87,7 @@ const state = {
   centerMarker: null,
   lastCenterKey: null,
   ui: { modal: null },
+  userInteracting: false,
 };
 
 // TESTING
@@ -664,11 +665,18 @@ function initMap() {
   state.map = L.map("map", {
     zoomControl: false,
     minZoom: 14.3,   // ✅ max zoom-out level (bigger number = less zoomed out)
-    maxZoom: 16.5,   // optional cap on zoom-in
+    maxZoom: 16.7,   // optional cap on zoom-in
     zoomSnap: 0,   // quarter-zoom steps
     keyboard: !TESTMODE.enabled,   // ✅ add this
+    userInteracting: false,
   });
   
+  state.map.on("zoomstart", () => state.userInteracting = true);
+  state.map.on("movestart", () => state.userInteracting = true);
+
+  state.map.on("zoomend", () => setTimeout(() => state.userInteracting = false, 250));
+  state.map.on("moveend", () => setTimeout(() => state.userInteracting = false, 250));
+
   // Simple black/white, no labels
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
     maxZoom: 20,
@@ -902,30 +910,6 @@ el.submitGuess.addEventListener("click", async () => {
   await apiCommand({ type: "SUBMIT_GUESS", guess });
 });
 
-// --- Geolocation ---
-// function startGeolocation() {
-//   if (!navigator.geolocation) {
-//     showToast("Geolocation not supported.");
-//     return;
-//   }
-//   navigator.geolocation.watchPosition(
-//     (pos) => {
-//       const { latitude, longitude, accuracy } = pos.coords;
-//       state.myLoc = { lat: latitude, lon: longitude, accuracy_m: accuracy || null };
-
-//       // keep map centered reasonably on user
-//       if (state.map) state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15));
-
-//       // if game not started, keep center marker near the user so "New Game" is tappable
-//       renderCenterMarker();
-
-//       renderButtons();
-//       renderOverlays();
-//     },
-//     () => showToast("Location permission needed."),
-//     { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
-//   );
-// }
 function startGeolocation() {
   // If test mode, we don't start GPS watching
   if (TESTMODE.enabled) {
@@ -935,7 +919,6 @@ function startGeolocation() {
     TESTMODE.lat = c.lat;
     TESTMODE.lon = c.lng;
     setMyLoc(TESTMODE.lat, TESTMODE.lon, 5);
-    installTestModeKeys();
     return;
   }
 
@@ -950,8 +933,8 @@ function startGeolocation() {
       setMyLoc(latitude, longitude, accuracy || null);
 
       // keep map view reasonable (your existing behavior)
-      if (state.map && !state.userHasPanned) {
-        state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15));
+      if (state.map && !state.userHasPanned && !state.userInteracting) {
+        state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15), { animate: false });
       }
     },
     () => showToast("Location permission needed."),
