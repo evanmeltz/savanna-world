@@ -87,9 +87,6 @@ const state = {
   centerMarker: null,
   lastCenterKey: null,
   ui: { modal: null },
-  headingDeg: null,
-  headingMarker: null,
-  compassEnabled: false,
 };
 
 // TESTING
@@ -103,7 +100,6 @@ const TESTMODE = {
 
 function setMyLoc(lat, lon, accuracy_m = null) {
   state.myLoc = { lat, lon, accuracy_m };
-  ensureHeadingMarker();
 
   // Keep your existing downstream updates in one place:
   renderCenterMarker();
@@ -417,96 +413,6 @@ function updateSurveyDropdown() {
   el.confirmSurvey.disabled = allowed.length === 0;
 }
 
-function normalizeDeg(d){
-  d = d % 360;
-  if (d < 0) d += 360;
-  return d;
-}
-
-// iOS Safari provides webkitCompassHeading; others often provide alpha.
-// alpha is clockwise from device; for compass-like heading we use (360 - alpha).
-function headingFromOrientationEvent(e){
-  if (typeof e.webkitCompassHeading === "number") {
-    return normalizeDeg(e.webkitCompassHeading);
-  }
-  if (typeof e.alpha === "number") {
-    // works best when e.absolute is true, but still useful as a rough heading
-    return normalizeDeg(360 - e.alpha);
-  }
-  return null;
-}
-
-function ensureHeadingMarker() {
-  if (!state.map || !state.myLoc) return;
-
-  const latlng = [state.myLoc.lat, state.myLoc.lon];
-
-  if (!state.headingMarker) {
-    const icon = L.divIcon({
-      className: "playerHeadingIcon",
-      html: `<div class="playerHeadingWrap"><div class="playerHeadingTri"></div></div>`,
-      iconSize: [0, 0],
-      iconAnchor: [0, 0],
-    });
-
-    state.headingMarker = L.marker(latlng, {
-      icon,
-      interactive: false,
-      keyboard: false,
-      pane: "playerPane",     // keep above sectors
-      zIndexOffset: 2000,     // extra safety
-    }).addTo(state.map);
-  } else {
-    state.headingMarker.setLatLng(latlng);
-  }
-
-  applyHeadingRotation();
-}
-
-function applyHeadingRotation() {
-  if (!state.headingMarker) return;
-  const el = state.headingMarker.getElement();
-  if (!el) return;
-
-  // If no heading data yet, hide triangle
-  if (state.headingDeg == null) {
-    el.style.display = "none";
-    return;
-  }
-  el.style.display = "";
-
-  // Rotate the whole icon element so the triangle points at heading
-  el.style.transformOrigin = "center center";
-  el.style.transform = `rotate(${state.headingDeg}deg)`;
-}
-
-async function enableCompassOnce() {
-  if (state.compassEnabled) return;
-  state.compassEnabled = true;
-
-  // iOS requires explicit permission in a user gesture
-  try {
-    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
-      const res = await DeviceOrientationEvent.requestPermission();
-      if (res !== "granted") {
-        state.headingDeg = null;
-        return;
-      }
-    }
-
-    window.addEventListener("deviceorientation", (e) => {
-      const h = headingFromOrientationEvent(e);
-      if (h == null) return;
-      state.headingDeg = h;
-      applyHeadingRotation();
-    }, true);
-
-  } catch {
-    state.headingDeg = null;
-  }
-}
-
-
 // --- Snapshot / UI rendering ---
 function applySnapshot(snap) {
   state.snapshot = snap;
@@ -757,14 +663,11 @@ function renderLog() {
 function initMap() {
   state.map = L.map("map", {
     zoomControl: false,
-    minZoom: 14.3,   // ✅ max zoom-out level (bigger number = less zoomed out)
+    minZoom: 14,   // ✅ max zoom-out level (bigger number = less zoomed out)
     maxZoom: 16.5,   // optional cap on zoom-in
     zoomSnap: 0,   // quarter-zoom steps
     keyboard: !TESTMODE.enabled,   // ✅ add this
   });
-
-  state.map.createPane("playerPane");
-  state.map.getPane("playerPane").style.zIndex = 650;
   
   // Simple black/white, no labels
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
@@ -1064,6 +967,4 @@ function startGeolocation() {
   loadInitialState().catch(() => {});
   connectWS();
   startGeolocation();
-  document.addEventListener("click", () => { enableCompassOnce(); }, { once: true });
-  document.addEventListener("touchstart", () => { enableCompassOnce(); }, { once: true, passive: true });
 })();
