@@ -408,6 +408,16 @@ async function handleCommand(cmd) {
     if (type === "RUN_SURVEY") {
       const animal = requireString(cmd.animal_type, "animal_type");
       if (!SURVEYABLE.has(animal)) return { ok: false, message: "That animal cannot be surveyed.", broadcast: "none" };
+      
+      // NEW RULE: cannot survey the same animal twice in a row
+      const last = await client.query("SELECT animal FROM survey_log ORDER BY id DESC LIMIT 1");
+      if (last.rows.length && last.rows[0].animal === animal) {
+        return {
+          ok: false,
+          message: "You can't survey the same animal twice in a row.",
+          broadcast: "none",
+        };
+      }
 
       const sel = Array.isArray(state.selected_sectors) ? state.selected_sectors.slice() : [];
       const run = contiguousRun(sel);
