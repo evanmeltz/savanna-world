@@ -9,11 +9,11 @@ const ANIMALS = {
 };
 
 const DISPLAY = {
-  OAK: { label: "Oak", icon: "🌳" },
-  LEOPARD: { label: "Leopard", icon: "🐆" },
-  ZEBRA: { label: "Zebra", icon: "🦓" },
-  VULTURE: { label: "Vulture", icon: "🦅" },
-  AARDWOLF: { label: "Aardwolf", icon: "🐺" },
+  OAK: { label: "Beaver", icon: "🦫" },
+  LEOPARD: { label: "Wolf", icon: "🐺" },
+  ZEBRA: { label: "Deer", icon: "🦌" },
+  VULTURE: { label: "Raven", icon: "🐦‍⬛" },
+  AARDWOLF: { label: "Room Key", icon: "🗝️" },
 };
 
 const CENTER_CARD_PX = 140;
@@ -933,7 +933,7 @@ function startGeolocation() {
       setMyLoc(latitude, longitude, accuracy || null);
 
       // keep map view reasonable (your existing behavior)
-      if (state.map && !state.userHasPanned && !state.userInteracting) {
+      if (state.map && !state.userInteracting) {
         state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15), { animate: false });
       }
     },
