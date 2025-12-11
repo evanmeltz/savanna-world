@@ -252,8 +252,8 @@ select{
   justify-content:center;
   padding: 18px;
   background:
-    radial-gradient(1200px 800px at 20% 15%, rgba(32,163,158,.3), transparent 100%),
-    radial-gradient(900px 700px at 80% 80%, rgba(255,186,73,.25), transparent 100%),
+    radial-gradient(1200px 800px at 20% 15%, rgba(142,202,230,.5), transparent 100%),
+    radial-gradient(900px 700px at 80% 80%, rgba(100,170,70,.45), transparent 100%),
     rgba(0,0,0,.52);
   backdrop-filter: blur(4px);
 }
