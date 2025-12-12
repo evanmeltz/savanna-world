@@ -13,7 +13,7 @@ const DISPLAY = {
   LEOPARD: { label: "Wolf", icon: "🐺" },
   ZEBRA: { label: "Deer", icon: "🦌" },
   VULTURE: { label: "Raven", icon: "🐦‍⬛" },
-  AARDWOLF: { label: "Room Key", icon: "🗝️" },
+  AARDWOLF: { label: "Room Key", icon: "🔑" },
 };
 
 const CENTER_CARD_PX = 140;

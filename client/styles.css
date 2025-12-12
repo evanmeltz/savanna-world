@@ -252,19 +252,20 @@ select{
   justify-content:center;
   padding: 18px;
   background:
-    radial-gradient(1200px 800px at 20% 15%, rgba(142,202,230,.5), transparent 100%),
-    radial-gradient(900px 700px at 80% 80%, rgba(100,170,70,.45), transparent 100%),
-    rgba(0,0,0,.52);
-  backdrop-filter: blur(4px);
+    radial-gradient(1200px 800px at 20% 15%, rgba(255, 218, 92,.8), transparent 100%),
+    radial-gradient(900px 700px at 80% 80%, rgba(232, 149, 66,.8), transparent 100%),
+    rgba(0,0,0,.0);
+  backdrop-filter: blur(1px);
 }
 .titleCard{
   width: min(520px, calc(100vw - 36px));
-  background: rgba(255,255,255,.92);
+  background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(255,255,255,.35);
   border-radius: 26px;
   box-shadow: 0 22px 70px rgba(0,0,0,.42);
   padding: 24px 18px;
   text-align:center;
+  mix-blend-mode: normal;
 }
 .titleName{
   font-size: 23.75px;
@@ -279,4 +280,24 @@ select{
   letter-spacing: .2px;
   line-height: 1.25;
   margin-bottom: 16px;
+}
+.titleLogo{
+  max-width: min(260px, 70vw);  /* logo stays nicely sized on phones */
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 18px auto;    /* centers it and adds space above the button */
+}
+.titleNewGameBtn{
+  background: linear-gradient(135deg, #ffd64c, #ee9a44);
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 5px 40px rgba(247, 194, 67,1);
+}
+.titleNewGameBtn:active{
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 8px 18px rgba(247, 194, 67,0.35);
 }
