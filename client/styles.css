@@ -7,9 +7,9 @@
   --ink: rgba(0,0,0,.92);
   --muted: rgba(0,0,0,.65);
 
-  --primary: rgba(99,102,241,.26);   /* indigo-ish, not gross yellow */
-  --primary-strong: rgba(99,102,241,.34);
-  --danger: rgba(248,113,113,.32);
+  --primary: rgba(232, 149, 66,.75);   /* indigo-ish, not gross yellow */
+  --primary-strong: rgba(255, 218, 92,.75);
+  --danger: rgba(248,113,113,.32);  /* do these do anything? */
   --success: rgba(34,197,94,.28);
 }
 
@@ -55,11 +55,11 @@ body {
   background: linear-gradient(180deg, var(--primary-strong), var(--primary));
 }
 .btnDanger{
-  background: linear-gradient(180deg, rgba(248,113,113,.38), rgba(248,113,113,.26));
+  background: linear-gradient(180deg, rgba(248,113,113,.35), rgba(248,113,113,.5));
 }
 
 .btnSuccess{
-  background: linear-gradient(180deg, rgba(34,197,94,.38), rgba(34,197,94,.26));
+  background: linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.5));
 }
 .btnGhost{
   background: rgba(255,255,255,.72);
