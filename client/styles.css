@@ -222,7 +222,8 @@ select{
   border-radius:14px;
   border:1px solid rgba(0,0,0,.18);
   font-weight:950;
-  background: rgba(248,113,113,.28);
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  box-shadow: 0 3px 30px rgba(247, 194, 67,0.5);
 }
 .centerBtn:active{ transform: translateY(1px) scale(0.99); }
 
