@@ -14,7 +14,7 @@ const ANIMALS = Object.freeze({
 const SURVEYABLE = new Set([ANIMALS.OAK, ANIMALS.LEOPARD, ANIMALS.ZEBRA, ANIMALS.VULTURE]);
 
 const OAK_ALLOWED = new Set([1,3,5,8,10,13].map(n => n-1)); // 0-based
-const SURVEY_COST_MIN = Object.freeze({ 2: 20, 3: 15, 4: 10 });
+const SURVEY_COST_MIN = Object.freeze({ 2: 27, 3: 20, 4: 13 });
 
 function wrap(i){ return ((i % N_SECTORS) + N_SECTORS) % N_SECTORS; }
 function ringDist(a,b){
