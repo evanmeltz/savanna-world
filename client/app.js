@@ -933,9 +933,9 @@ function startGeolocation() {
       setMyLoc(latitude, longitude, accuracy || null);
 
       // keep map view reasonable (your existing behavior)
-      if (state.map && !state.userInteracting) {
-        state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15), { animate: false });
-      }
+      // if (state.map && !state.userInteracting) {
+      //   state.map.setView([latitude, longitude], Math.max(state.map.getZoom(), 15), { animate: false });
+      // }
     },
     () => showToast("Location permission needed."),
     { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
